@@ -6,6 +6,7 @@ import java.io.PrintWriter;
 public class Task1 {
 	
 	public static void task1 () throws IOException {
+		System.out.println("-------------- Task 1 -------------");
 		String dataPath = "data/";
 
 		String train_100_10 = dataPath + "train-100-10.csv";
@@ -20,6 +21,7 @@ public class Task1 {
 		double[] mse_test_100_10 = new double[151];
 		PrintWriter writer_mse_train_100_10 = new PrintWriter("results/mse_train_100_10", "UTF-8");
 		PrintWriter writer_mse_test_100_10 = new PrintWriter("results/mse_test_100_10", "UTF-8");
+
 		
 		String train_100_100 = dataPath + "train-100-100.csv";
 		String trainR_100_100 = dataPath + "trainR-100-100.csv";
@@ -33,6 +35,7 @@ public class Task1 {
 		double[] mse_test_100_100 = new double[151];
 		PrintWriter writer_mse_train_100_100 = new PrintWriter("results/mse_train_100_100", "UTF-8");
 		PrintWriter writer_mse_test_100_100 = new PrintWriter("results/mse_test_100_100", "UTF-8");
+		
 		
 		String train_50_1000_100 = dataPath + "train-(50)1000-100.csv";
 		String train_100_1000_100 = dataPath + "train-(100)1000-100.csv";
@@ -162,5 +165,26 @@ public class Task1 {
 		writer_mse_test_crime.close();
 		writer_mse_train_wine.close();
 		writer_mse_test_wine.close();
+		
+		double[] optimal_test_100_10 = BayesianLinearRegression.findMinMse(mse_test_100_10);
+		System.out.println("test-100-10 lambda: " + optimal_test_100_10[0] + " mse: " + optimal_test_100_10[1]);
+
+		double[] optimal_test_100_100 = BayesianLinearRegression.findMinMse(mse_test_100_100);
+		System.out.println("test-100-100 lambda: " + optimal_test_100_100[0] + " mse: " + optimal_test_100_100[1]);
+		
+		double[] optimal_test_50_1000_100 = BayesianLinearRegression.findMinMse(mse_test_50_1000_100);
+		System.out.println("test-50-1000-100 lambda: " + optimal_test_50_1000_100[0] + " mse: " + optimal_test_50_1000_100[1]);
+		double[] optimal_test_100_1000_100 = BayesianLinearRegression.findMinMse(mse_test_100_1000_100);
+		System.out.println("test-100-1000-100 lambda: " + optimal_test_100_1000_100[0] + " mse: " + optimal_test_100_1000_100[1]);
+		double[] optimal_test_150_1000_100 = BayesianLinearRegression.findMinMse(mse_test_150_1000_100);
+		System.out.println("test-150-1000-100 lambda: " + optimal_test_150_1000_100[0] + " mse: " + optimal_test_150_1000_100[1]);
+		double[] optimal_test_1000_100 = BayesianLinearRegression.findMinMse(mse_test_1000_100);
+		System.out.println("test-1000-100lambda: " + optimal_test_1000_100[0] + " mse: " + optimal_test_1000_100[1]);
+		
+		double[] optimal_test_crime = BayesianLinearRegression.findMinMse(mse_test_crime);
+		System.out.println("test-crime lambda: " + optimal_test_crime[0] + " mse: " + optimal_test_crime[1]);
+		
+		double[] optimal_test_wine = BayesianLinearRegression.findMinMse(mse_test_wine);
+		System.out.println("test-wine lambda: " + optimal_test_wine[0] + " mse: " + optimal_test_wine[1]);
 	}
 }

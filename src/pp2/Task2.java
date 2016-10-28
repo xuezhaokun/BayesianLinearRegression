@@ -7,6 +7,7 @@ import java.util.Collections;
 
 public class Task2 {
 	public static void task2() throws IOException{
+		System.out.println("-------------- Task 2 -------------");
 		String dataPath = "data/";
 		String train_1000_100 = dataPath + "train-1000-100.csv";
 		String trainR_1000_100 = dataPath + "trainR-1000-100.csv";

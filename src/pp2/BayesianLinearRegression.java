@@ -147,18 +147,19 @@ public class BayesianLinearRegression {
 		}
 
 		//Arrays.sort(lambdas_mse);
-	    double minValue = lambdas_mse[0];
-	    double chosenLambda = 0;
-	    for (int i = 1; i < lambdas_mse.length; i++) {
-	        //System.out.println(i + " " + lambdas_mse[i]);
-	    		if (lambdas_mse[i] < minValue) {
-	            minValue = lambdas_mse[i];
-	            chosenLambda = (double)i;
-	        }
-	    }
+//	    double minValue = lambdas_mse[0];
+//	    double chosenLambda = 0;
+//	    for (int i = 1; i < lambdas_mse.length; i++) {
+//	        //System.out.println(i + " " + lambdas_mse[i]);
+//	    		if (lambdas_mse[i] < minValue) {
+//	            minValue = lambdas_mse[i];
+//	            chosenLambda = (double)i;
+//	        }
+//	    }
+	    double[] minMse = findMinMse(lambdas_mse);
 //	    System.out.println("~~~~~~~~~~~~~~~~~");
 //	    System.out.println(chosenLambda);
-		return chosenLambda;
+		return minMse[0];
 	}
 	
 	public static HashMap<Integer, double[][]> splitFolds(double[][] data_with_labels) {
@@ -211,6 +212,169 @@ public class BayesianLinearRegression {
 		return (result / n);
 	}
 	
+	public static double[] calculateMn(double[][] phi, double[] t) {
+		int n = phi.length;
+		int dimension = phi[0].length;
+		double alpha = 1;
+		double beta = 1;
+		double gamma = 0;
+		Matrix phiMatrix = new Matrix(phi);
+		Matrix tMatrix = new Matrix(t, 1).transpose();
+		Matrix identity = Matrix.identity(dimension, dimension);
+		double alpha_changes = 100;
+		double beta_changes = 100;
+		double delta = Math.pow(10, -4);
+
+		Matrix sn = identity.times(alpha).plus(phiMatrix.transpose().times(phiMatrix).times(beta));
+		Matrix mn = sn.times(phiMatrix.transpose()).times(tMatrix).times(beta);
+
+		while (Math.abs(alpha_changes) > delta || Math.abs(beta_changes) > delta) {
+			double[] eigenvalues = phiMatrix.transpose().times(phiMatrix).times(beta).eig().getRealEigenvalues();
+			for (double eigenvalue : eigenvalues) {
+				gamma += eigenvalue /(alpha + eigenvalue);
+			}	
+			
+			double update_alpha = gamma / (mn.transpose().times(mn)).get(0,0);
+			double update_beta = 0;
+			double[] mn_array = mn.getColumnPackedCopy();
+			for (int j = 0; j < dimension; j++) {
+				for (int i = 0; i < n; i++) {
+					update_beta += Math.pow((t[i] - mn_array[j]*phi[i][j]) ,2);
+				}
+			}
+			update_beta = (n - gamma)/update_beta;
+			
+			sn = identity.times(update_alpha).plus(phiMatrix.transpose().times(phiMatrix).times(update_beta));
+			mn = sn.times(phiMatrix.transpose()).times(tMatrix).times(update_beta);
+			alpha_changes = (update_alpha - alpha)/alpha;
+			beta_changes = (update_beta - beta)/beta;
+			alpha = update_alpha;
+			beta = update_beta;	
+			System.out.println("alpha: " + alpha + " beta: " + beta);
+		}
+		
+		return mn.getColumnPackedCopy();
+	}
+	
+//	public static void task4 () throws IOException {
+//		System.out.println("-------------- Task 4 -------------");
+//		String dataPath = "data/";
+//
+//		String train_100_10 = dataPath + "train-100-10.csv";
+//		String trainR_100_10 = dataPath + "trainR-100-10.csv";
+//		String test_100_10 = dataPath + "test-100-10.csv";
+//		String testR_100_10 = dataPath + "testR-100-10.csv";
+//		double[][] train_100_10_phi = BayesianLinearRegression.readData(train_100_10);
+//		double[] train_100_10_t = BayesianLinearRegression.readLabels(trainR_100_10);
+//		double[][] test_100_10_phi = BayesianLinearRegression.readData(test_100_10);
+//		double[] test_100_10_t = BayesianLinearRegression.readLabels(testR_100_10);
+//		double[] mse_train_100_10 = new double[151];
+//		double[] mse_test_100_10 = new double[151];
+//		PrintWriter writer_mse_train_100_10 = new PrintWriter("results/mse_train_100_10", "UTF-8");
+//		PrintWriter writer_mse_test_100_10 = new PrintWriter("results/mse_test_100_10", "UTF-8");
+//
+//		
+//		String train_100_100 = dataPath + "train-100-100.csv";
+//		String trainR_100_100 = dataPath + "trainR-100-100.csv";
+//		String test_100_100 = dataPath + "test-100-100.csv";
+//		String testR_100_100 = dataPath + "testR-100-100.csv";
+//		double[][] train_100_100_phi = BayesianLinearRegression.readData(train_100_100);
+//		double[] train_100_100_t = BayesianLinearRegression.readLabels(trainR_100_100);
+//		double[][] test_100_100_phi = BayesianLinearRegression.readData(test_100_100);
+//		double[] test_100_100_t = BayesianLinearRegression.readLabels(testR_100_100);
+//		double[] mse_train_100_100 = new double[151];
+//		double[] mse_test_100_100 = new double[151];
+//		PrintWriter writer_mse_train_100_100 = new PrintWriter("results/mse_train_100_100", "UTF-8");
+//		PrintWriter writer_mse_test_100_100 = new PrintWriter("results/mse_test_100_100", "UTF-8");
+//		
+//		
+//		String train_50_1000_100 = dataPath + "train-(50)1000-100.csv";
+//		String train_100_1000_100 = dataPath + "train-(100)1000-100.csv";
+//		String train_150_1000_100 = dataPath + "train-(150)1000-100.csv";
+//		String train_1000_100 = dataPath + "train-1000-100.csv";
+//		String trainR_1000_100 = dataPath + "trainR-1000-100.csv";
+//		String test_1000_100 = dataPath + "test-1000-100.csv";
+//		String testR_1000_100 = dataPath + "testR-1000-100.csv";
+//		
+//		double[][] train_50_1000_100_phi = BayesianLinearRegression.readData(train_50_1000_100);
+//		double[][] train_100_1000_100_phi = BayesianLinearRegression.readData(train_100_1000_100);
+//		double[][] train_150_1000_100_phi = BayesianLinearRegression.readData(train_150_1000_100);
+//		double[][] train_1000_100_phi = BayesianLinearRegression.readData(train_1000_100);
+//		double[] train_1000_100_t = BayesianLinearRegression.readLabels(trainR_1000_100);
+//		double[] train_50_1000_100_t = BayesianLinearRegression.getFirstNLabels(train_1000_100_t, 50);
+//		double[] train_100_1000_100_t = BayesianLinearRegression.getFirstNLabels(train_1000_100_t, 100);
+//		double[] train_150_1000_100_t = BayesianLinearRegression.getFirstNLabels(train_1000_100_t, 150);
+//		double[][] test_1000_100_phi = BayesianLinearRegression.readData(test_1000_100);
+//		double[] test_1000_100_t = BayesianLinearRegression.readLabels(testR_1000_100);
+//		
+//		double[] mse_train_50_1000_100 = new double[151];
+//		double[] mse_train_100_1000_100 = new double[151];
+//		double[] mse_train_150_1000_100 = new double[151];
+//		double[] mse_train_1000_100 = new double[151];
+//		PrintWriter writer_mse_train_50_1000_100 = new PrintWriter("results/mse_train_50_1000_100 ", "UTF-8");
+//		PrintWriter writer_mse_train_100_1000_100  = new PrintWriter("results/mse_train_100_1000_100 ", "UTF-8");
+//		PrintWriter writer_mse_train_150_1000_100  = new PrintWriter("results/mse_train_150_1000_100 ", "UTF-8");
+//		PrintWriter writer_mse_train_1000_100  = new PrintWriter("results/mse_train_1000_100 ", "UTF-8");
+//		
+//		double[] mse_test_50_1000_100 = new double[151];
+//		double[] mse_test_100_1000_100 = new double[151];
+//		double[] mse_test_150_1000_100 = new double[151];
+//		double[] mse_test_1000_100 = new double[151];
+//		PrintWriter writer_mse_test_50_1000_100 = new PrintWriter("results/mse_test_50_1000_100 ", "UTF-8");
+//		PrintWriter writer_mse_test_100_1000_100  = new PrintWriter("results/mse_test_100_1000_100 ", "UTF-8");
+//		PrintWriter writer_mse_test_150_1000_100  = new PrintWriter("results/mse_test_150_1000_100 ", "UTF-8");
+//		PrintWriter writer_mse_test_1000_100  = new PrintWriter("results/mse_test_1000_100 ", "UTF-8");
+//		
+//		String train_crime = dataPath + "train-crime.csv";
+//		String trainR_crime = dataPath + "trainR-crime.csv";
+//		String test_crime = dataPath + "test-crime.csv";
+//		String testR_crime = dataPath + "testR-crime.csv";
+//		double[][] train_crime_phi = BayesianLinearRegression.readData(train_crime);
+//		double[] train_crime_t = BayesianLinearRegression.readLabels(trainR_crime);
+//		double[][] test_crime_phi = BayesianLinearRegression.readData(test_crime);
+//		double[] test_crime_t = BayesianLinearRegression.readLabels(testR_crime);
+//		double[] mse_train_crime = new double[151];
+//		double[] mse_test_crime = new double[151];
+//		PrintWriter writer_mse_train_crime = new PrintWriter("results/mse_train_crime", "UTF-8");
+//		PrintWriter writer_mse_test_crime = new PrintWriter("results/mse_test_crime", "UTF-8");
+//		
+//		String train_wine = dataPath + "train-wine.csv";
+//		String trainR_wine = dataPath + "trainR-wine.csv";
+//		String test_wine = dataPath + "test-wine.csv";
+//		String testR_wine = dataPath + "testR-wine.csv";
+//		double[][] train_wine_phi = BayesianLinearRegression.readData(train_wine);
+//		double[] train_wine_t = BayesianLinearRegression.readLabels(trainR_wine);
+//		double[][] test_wine_phi = BayesianLinearRegression.readData(test_wine);
+//		double[] test_wine_t = BayesianLinearRegression.readLabels(testR_wine);
+//		double[] mse_train_wine = new double[151];
+//		double[] mse_test_wine = new double[151];
+//	}
+	
+	public static double[] calculateW (double lambda, double[][] phi, double[] t){
+		Matrix phiMatrix = new Matrix(phi);
+		int dimension = phiMatrix.transpose().getArray().length;
+		Matrix identity = Matrix.identity(dimension, dimension);
+		Matrix tMatrix = new Matrix(t, 1).transpose();
+		Matrix w = (identity.times(lambda).plus(phiMatrix.transpose().times(phiMatrix))).inverse().times(phiMatrix.transpose()).times(tMatrix);
+		return w.getColumnPackedCopy();
+	}
+
+	public static double[] findMinMse (double[] lambdas_mse) {
+		double results[] = new double[2];
+	    double minValue = lambdas_mse[0];
+	    double chosenLambda = 0;
+	    for (int i = 1; i < lambdas_mse.length; i++) {
+	        //System.out.println(i + " " + lambdas_mse[i]);
+	    		if (lambdas_mse[i] < minValue) {
+	            minValue = lambdas_mse[i];
+	            chosenLambda = (double)i;
+	        }
+	    }
+	    results[0] = chosenLambda;
+	    results[1] = minValue;
+	    return results;
+	}
+	
 	public static Boolean determineSingular (double lambda, double[][] phi) {
 		Matrix phiMatrix = new Matrix(phi);
 		int dimension = phiMatrix.transpose().getArray().length;
@@ -220,15 +384,6 @@ public class BayesianLinearRegression {
 		} else {
 			return true;
 		}
-	}
-	
-	public static double[] calculateW (double lambda, double[][] phi, double[] t){
-		Matrix phiMatrix = new Matrix(phi);
-		int dimension = phiMatrix.transpose().getArray().length;
-		Matrix identity = Matrix.identity(dimension, dimension);
-		Matrix tMatrix = new Matrix(t, 1).transpose();
-		Matrix w = (identity.times(lambda).plus(phiMatrix.transpose().times(phiMatrix))).inverse().times(phiMatrix.transpose()).times(tMatrix);
-		return w.getColumnPackedCopy();
 	}
 	
 	public static void printMatrix (Matrix m) {
@@ -241,114 +396,6 @@ public class BayesianLinearRegression {
 		}
 	}
 	
-	public static void task3 () throws IOException {
-		String dataPath = "data/";
-
-		String train_100_10 = dataPath + "train-100-10.csv";
-		String trainR_100_10 = dataPath + "trainR-100-10.csv";
-		String test_100_10 = dataPath + "test-100-10.csv";
-		String testR_100_10 = dataPath + "testR-100-10.csv";
-		double[][] train_100_10_phi = BayesianLinearRegression.readData(train_100_10);
-		double[] train_100_10_t = BayesianLinearRegression.readLabels(trainR_100_10);
-		double[][] train_100_10_with_labels = BayesianLinearRegression.combineDataWithLabels(train_100_10_phi, train_100_10_t);
-		double[][] test_100_10_phi = BayesianLinearRegression.readData(test_100_10);
-		double[] test_100_10_t = BayesianLinearRegression.readLabels(testR_100_10);
-		double train_100_10_lambda = BayesianLinearRegression.implementTenFoldCross(train_100_10_with_labels);
-		double[] train_100_10_w = BayesianLinearRegression.calculateW(train_100_10_lambda, train_100_10_phi, train_100_10_t);
-		double test_100_10_mse = BayesianLinearRegression.mse(test_100_10_phi, train_100_10_w, test_100_10_t);
-		System.out.println("lambda: " + train_100_10_lambda + " test-100-10 mse: " + test_100_10_mse);
-		
-		String train_100_100 = dataPath + "train-100-100.csv";
-		String trainR_100_100 = dataPath + "trainR-100-100.csv";
-		String test_100_100 = dataPath + "test-100-100.csv";
-		String testR_100_100 = dataPath + "testR-100-100.csv";
-		double[][] train_100_100_phi = BayesianLinearRegression.readData(train_100_100);
-		double[] train_100_100_t = BayesianLinearRegression.readLabels(trainR_100_100);
-		double[][] train_100_100_with_labels = BayesianLinearRegression.combineDataWithLabels(train_100_100_phi, train_100_100_t);
-		double[][] test_100_100_phi = BayesianLinearRegression.readData(test_100_100);
-		double[] test_100_100_t = BayesianLinearRegression.readLabels(testR_100_100);
-		double train_100_100_lambda = BayesianLinearRegression.implementTenFoldCross(train_100_100_with_labels);
-		double[] train_100_100_w = BayesianLinearRegression.calculateW(train_100_100_lambda, train_100_100_phi, train_100_100_t);
-		double test_100_100_mse = BayesianLinearRegression.mse(test_100_100_phi, train_100_100_w, test_100_100_t);
-		System.out.println("lambda: " + train_100_100_lambda + " test-100-100 mse: " + test_100_100_mse);
-		
-		String train_50_1000_100 = dataPath + "train-(50)1000-100.csv";
-		String train_100_1000_100 = dataPath + "train-(100)1000-100.csv";
-		String train_150_1000_100 = dataPath + "train-(150)1000-100.csv";
-		String train_1000_100 = dataPath + "train-1000-100.csv";
-		String trainR_1000_100 = dataPath + "trainR-1000-100.csv";
-		String test_1000_100 = dataPath + "test-1000-100.csv";
-		String testR_1000_100 = dataPath + "testR-1000-100.csv";
-		
-		double[][] train_50_1000_100_phi = BayesianLinearRegression.readData(train_50_1000_100);
-		double[][] train_100_1000_100_phi = BayesianLinearRegression.readData(train_100_1000_100);
-		double[][] train_150_1000_100_phi = BayesianLinearRegression.readData(train_150_1000_100);
-		double[][] train_1000_100_phi = BayesianLinearRegression.readData(train_1000_100);
-		double[] train_1000_100_t = BayesianLinearRegression.readLabels(trainR_1000_100);
-		double[] train_50_1000_100_t = BayesianLinearRegression.getFirstNLabels(train_1000_100_t, 50);
-		double[] train_100_1000_100_t = BayesianLinearRegression.getFirstNLabels(train_1000_100_t, 100);
-		double[] train_150_1000_100_t = BayesianLinearRegression.getFirstNLabels(train_1000_100_t, 150);
-		double[][] train_50_1000_100_with_labels = BayesianLinearRegression.combineDataWithLabels(train_50_1000_100_phi, train_50_1000_100_t);
-		double[][] train_100_1000_100_with_labels = BayesianLinearRegression.combineDataWithLabels(train_100_1000_100_phi, train_100_1000_100_t);
-		double[][] train_150_1000_100_with_labels = BayesianLinearRegression.combineDataWithLabels(train_150_1000_100_phi, train_150_1000_100_t);
-		double[][] train_1000_100_with_labels = BayesianLinearRegression.combineDataWithLabels(train_1000_100_phi, train_1000_100_t);
-		
-		double[][] test_1000_100_phi = BayesianLinearRegression.readData(test_1000_100);
-		double[] test_1000_100_t = BayesianLinearRegression.readLabels(testR_1000_100);
-		
-		double train_50_1000_100_lambda = BayesianLinearRegression.implementTenFoldCross(train_50_1000_100_with_labels);
-		double[] train_50_1000_100_w = BayesianLinearRegression.calculateW(train_50_1000_100_lambda, train_50_1000_100_phi, train_50_1000_100_t);
-		double test_50_1000_100_mse = BayesianLinearRegression.mse(test_1000_100_phi, train_50_1000_100_w, test_1000_100_t);
-		System.out.println("lambda: " + train_50_1000_100_lambda + " test-50-1000-100 mse: " + test_50_1000_100_mse);
-		
-		double train_100_1000_100_lambda = BayesianLinearRegression.implementTenFoldCross(train_100_1000_100_with_labels);
-		double[] train_100_1000_100_w = BayesianLinearRegression.calculateW(train_100_1000_100_lambda, train_100_1000_100_phi, train_100_1000_100_t);
-		double test_100_1000_100_mse = BayesianLinearRegression.mse(test_1000_100_phi, train_100_1000_100_w, test_1000_100_t);
-		System.out.println("lambda: " + train_100_1000_100_lambda + " test-100-1000-100 mse: " + test_100_1000_100_mse);
-		
-		double train_150_1000_100_lambda = BayesianLinearRegression.implementTenFoldCross(train_150_1000_100_with_labels);
-		double[] train_150_1000_100_w = BayesianLinearRegression.calculateW(train_150_1000_100_lambda, train_150_1000_100_phi, train_150_1000_100_t);
-		double test_150_1000_100_mse = BayesianLinearRegression.mse(test_1000_100_phi, train_150_1000_100_w, test_1000_100_t);
-		System.out.println("lambda: " + train_150_1000_100_lambda + " test-150-1000-100 mse: " + test_150_1000_100_mse);
-		
-		double train_1000_100_lambda = BayesianLinearRegression.implementTenFoldCross(train_1000_100_with_labels);
-		double[] train_1000_100_w = BayesianLinearRegression.calculateW(train_1000_100_lambda, train_1000_100_phi, train_1000_100_t);
-		double test_1000_100_mse = BayesianLinearRegression.mse(test_1000_100_phi, train_1000_100_w, test_1000_100_t);
-		System.out.println("lambda: " + train_1000_100_lambda + " test-1000-100 mse: " + test_1000_100_mse);
-		
-		String train_crime = dataPath + "train-crime.csv";
-		String trainR_crime = dataPath + "trainR-crime.csv";
-		String test_crime = dataPath + "test-crime.csv";
-		String testR_crime = dataPath + "testR-crime.csv";
-		double[][] train_crime_phi = BayesianLinearRegression.readData(train_crime);
-		double[] train_crime_t = BayesianLinearRegression.readLabels(trainR_crime);
-		double[][] train_crime_with_labels = BayesianLinearRegression.combineDataWithLabels(train_crime_phi, train_crime_t);
-		
-		double[][] test_crime_phi = BayesianLinearRegression.readData(test_crime);
-		double[] test_crime_t = BayesianLinearRegression.readLabels(testR_crime);
-		
-		double train_crime_lambda = BayesianLinearRegression.implementTenFoldCross(train_crime_with_labels);
-		double[] train_crime_w = BayesianLinearRegression.calculateW(train_crime_lambda, train_crime_phi, train_crime_t);
-		double test_crime_mse = BayesianLinearRegression.mse(test_crime_phi, train_crime_w, test_crime_t);
-		System.out.println("lambda: " + train_crime_lambda + " test-crime mse: " + test_crime_mse);
-		
-		
-		String train_wine = dataPath + "train-wine.csv";
-		String trainR_wine = dataPath + "trainR-wine.csv";
-		String test_wine = dataPath + "test-wine.csv";
-		String testR_wine = dataPath + "testR-wine.csv";
-		double[][] train_wine_phi = BayesianLinearRegression.readData(train_wine);
-		double[] train_wine_t = BayesianLinearRegression.readLabels(trainR_wine);
-		double[][] train_wine_with_labels = BayesianLinearRegression.combineDataWithLabels(train_wine_phi, train_wine_t);
-		
-		double[][] test_wine_phi = BayesianLinearRegression.readData(test_wine);
-		double[] test_wine_t = BayesianLinearRegression.readLabels(testR_wine);
-		double train_wine_lambda = BayesianLinearRegression.implementTenFoldCross(train_wine_with_labels);
-		double[] train_wine_w = BayesianLinearRegression.calculateW(train_wine_lambda, train_wine_phi, train_wine_t);
-		double test_wine_mse = BayesianLinearRegression.mse(test_wine_phi, train_wine_w, test_wine_t);
-		System.out.println("lambda: " + train_wine_lambda + " test-wine mse: " + test_wine_mse);
-	}
-	
 	public static void main(String[] args) throws Exception{
 		// TODO Auto-generated method stub
 //		double[][] array = {{-1.,1.,0},{-4.,3.,0.},{1.,0.,2.}, {3, 4, 5}}; 
@@ -359,8 +406,16 @@ public class BayesianLinearRegression {
 //		String trainingLabels = dataPath + "trainR-100-10.csv";
 //		double[][] phi = BayesianLinearRegression.readData(trainingData);
 //		double[] t = BayesianLinearRegression.readLabels(trainingLabels);
+//		
+//		String testData = dataPath + "test-100-10.csv";
+//		String testLabels = dataPath + "testR-100-10.csv";
+//		double[][] test_phi = BayesianLinearRegression.readData(testData);
+//		double[] test_t = BayesianLinearRegression.readLabels(testLabels);
+//		
 //		//Collections.shuffle(Arrays.asList(phi));
 //		double[][] data_with_labels = BayesianLinearRegression.combineDataWithLabels(phi, t);
+//		double[] mn = BayesianLinearRegression.calculateMn(phi, t);
+		
 //		BayesianLinearRegression.implementTenFoldCross(data_with_labels);
 ////		
 //		for (int i = 0; i < phi.length; i++) {
@@ -374,7 +429,7 @@ public class BayesianLinearRegression {
 		
 //		double[] t = BayesianLinearRegression.readLabels(trainingLabels);
 //		double[] w = BayesianLinearRegression.calculateW(0, phi, t);
-//		double mse = BayesianLinearRegression.mse(phi, w, t);
+//		double mse = BayesianLinearRegression.mse(test_phi, mn, test_t);
 		
 		//BayesianLinearRegression.task1();
 		
@@ -387,7 +442,7 @@ public class BayesianLinearRegression {
 		//Task1.task1();
 		
 		//Task2.task2();
-		BayesianLinearRegression.task3();
+		Task3.task3();
 	}
 
 }
