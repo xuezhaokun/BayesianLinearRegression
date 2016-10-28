@@ -19,19 +19,9 @@ public class Task2 {
 		double[][] train_1000_100_phi = BayesianLinearRegression.readData(train_1000_100);
 		double[] train_1000_100_t = BayesianLinearRegression.readLabels(trainR_1000_100);
 		double[][] test_1000_100_phi = BayesianLinearRegression.readData(test_1000_100);
-		double[] test_1000_100_t = BayesianLinearRegression.readLabels(testR_1000_100);
+		double[] test_1000_100_t = BayesianLinearRegression.readLabels(testR_1000_100);		
 		
-		
-		double[][] data_with_labels = new double[1000][101];
-		
-		for (int i = 0; i < train_1000_100_phi.length; i++) {
-			double[] data_label = new double [101];
-			for (int j = 0; j < train_1000_100_phi[i].length; j++) {
-				data_label[j] = train_1000_100_phi[i][j];
-			}
-			data_label[100] = train_1000_100_t[i];
-			data_with_labels[i] = data_label;
-		}
+		double[][] data_with_labels = BayesianLinearRegression.combineDataWithLabels(train_1000_100_phi, train_1000_100_t);
 		
 		double[] lambdas = new double[] {0, 90, 150};
 		for (double lambda : lambdas) {

@@ -34,7 +34,7 @@ public class Task1 {
 		PrintWriter writer_mse_train_100_100 = new PrintWriter("results/mse_train_100_100", "UTF-8");
 		PrintWriter writer_mse_test_100_100 = new PrintWriter("results/mse_test_100_100", "UTF-8");
 		
-		String train_50_1000_100 = dataPath + "train-50(1000)-100.csv";
+		String train_50_1000_100 = dataPath + "train-(50)1000-100.csv";
 		String train_100_1000_100 = dataPath + "train-(100)1000-100.csv";
 		String train_150_1000_100 = dataPath + "train-(150)1000-100.csv";
 		String train_1000_100 = dataPath + "train-1000-100.csv";
