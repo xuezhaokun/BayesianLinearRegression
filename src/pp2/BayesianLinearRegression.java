@@ -3,6 +3,7 @@ package pp2;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.io.*;
 import java.util.List;
 import Jama.Matrix;
@@ -119,29 +120,82 @@ public class BayesianLinearRegression {
 		return labels;
 	}
 	
-	public static void implementTenFoldCross(double[][] data_with_labels) {
-		double[] lambdas_mse = new double[150];
+	public static double implementTenFoldCross(double[][] data_with_labels) {
+		double[] lambdas_mse = new double[151];
+		int data_size = data_with_labels.length;
+//		int fold_size = data_size/10;
+//		int dimension = data_with_labels[0].length;
+		HashMap<Integer, double[][]> folds = BayesianLinearRegression.splitFolds(data_with_labels);
+		//System.out.println(folds.toString());
+		for (double lambda = 0; lambda < 151; lambda++) {
+//			double[][] train_data_with_labels = new double[data_size-fold_size][dimension];
+//			double[][] test_data_with_labels = new double[fold_size][dimension];
+			double current_mse = 0;
+			for (int k = 0; k < 10; k++){
+				double[][] test_fold_with_labels = folds.get(k);
+				double[][] test_fold_data = BayesianLinearRegression.getDataFromDataWithLabels(test_fold_with_labels);
+				double[] test_labels = BayesianLinearRegression.getLabelsFromDataWithLabels(test_fold_with_labels);
+				
+				double[][] train_fold_with_labels = BayesianLinearRegression.generateTrainingFolds(folds, k);
+				double[][] train_fold_data = BayesianLinearRegression.getDataFromDataWithLabels(train_fold_with_labels);
+				double[] train_labels = BayesianLinearRegression.getLabelsFromDataWithLabels(train_fold_with_labels);
+				double[] current_w = BayesianLinearRegression.calculateW(lambda, train_fold_data, train_labels);
+				current_mse += BayesianLinearRegression.mse(test_fold_data, current_w, test_labels);
+			}
+			double avg_mse = current_mse/(double)10;
+			lambdas_mse[(int)lambda] = avg_mse;
+		}
+
+		//Arrays.sort(lambdas_mse);
+	    double minValue = lambdas_mse[0];
+	    double chosenLambda = 0;
+	    for (int i = 1; i < lambdas_mse.length; i++) {
+	        //System.out.println(i + " " + lambdas_mse[i]);
+	    		if (lambdas_mse[i] < minValue) {
+	            minValue = lambdas_mse[i];
+	            chosenLambda = (double)i;
+	        }
+	    }
+//	    System.out.println("~~~~~~~~~~~~~~~~~");
+//	    System.out.println(chosenLambda);
+		return chosenLambda;
+	}
+	
+	public static HashMap<Integer, double[][]> splitFolds(double[][] data_with_labels) {
 		int data_size = data_with_labels.length;
 		int fold_size = data_size/10;
-		int dimension = data_with_labels[0].length;
 		List<double[]> list_data = Arrays.asList(data_with_labels); 
-		List<List<double[]>> folds = new ArrayList<List<double[]>>();
+		HashMap<Integer, double[][]> folds = new HashMap<Integer, double[][]>();
+		int index = 0;
 		for(int i = 0; i < data_size; i = i + fold_size){
 			int j = i + fold_size;
 			if(j >= data_size){
 				j = data_size;
 			}
-			List<double[]> tempFold = list_data.subList(i, j);
-			folds.add(tempFold);
+			
+			List<double[]> temp_fold = list_data.subList(i, j);
+			double[][] current_fold = temp_fold.toArray(new double[][]{});
+			folds.put(index, current_fold);
+			index++;
 		}
-		for (double lambda = 0; lambda < 151; lambda++) {
-			double[][] train_data_with_labels = new double[data_size-fold_size][dimension];
-			double[][] test_data_with_labels = new double[fold_size][dimension];
-				
-			for (int k = 0; k < 10; k++){
-				List<double[]> test_fold = folds.get(k);
+		return folds;
+	}
+	
+	public static double[][] generateTrainingFolds(HashMap<Integer, double[][]> folds, int k) {
+		int dimension = folds.get(0)[0].length;
+		List<double[]> train_data = new ArrayList<double[]>();
+		for (int i = 0; i < 10; i++) {
+			if (i != k) {
+				//train_data.add(folds.get(i));
+				train_data.addAll(Arrays.asList(folds.get(i)));
 			}
 		}
+		double[][] train_folds = train_data.toArray(new double[][]{});
+//		double[][] train_folds = new double[train_data.size()][dimension];
+//		for (int j = 0; j < train_data.size(); j++) {
+//			train_folds[j] = train_data.get(j);
+//		}
+		return train_folds;
 	}
 	
 	public static double mse (double[][] phi, double[] w, double[] t) {
@@ -196,9 +250,13 @@ public class BayesianLinearRegression {
 		String testR_100_10 = dataPath + "testR-100-10.csv";
 		double[][] train_100_10_phi = BayesianLinearRegression.readData(train_100_10);
 		double[] train_100_10_t = BayesianLinearRegression.readLabels(trainR_100_10);
-		double[][] train_100_10_with_label = BayesianLinearRegression.combineDataWithLabels(train_100_10_phi, train_100_10_t);
+		double[][] train_100_10_with_labels = BayesianLinearRegression.combineDataWithLabels(train_100_10_phi, train_100_10_t);
 		double[][] test_100_10_phi = BayesianLinearRegression.readData(test_100_10);
 		double[] test_100_10_t = BayesianLinearRegression.readLabels(testR_100_10);
+		double train_100_10_lambda = BayesianLinearRegression.implementTenFoldCross(train_100_10_with_labels);
+		double[] train_100_10_w = BayesianLinearRegression.calculateW(train_100_10_lambda, train_100_10_phi, train_100_10_t);
+		double test_100_10_mse = BayesianLinearRegression.mse(test_100_10_phi, train_100_10_w, test_100_10_t);
+		System.out.println("lambda: " + train_100_10_lambda + " test-100-10 mse: " + test_100_10_mse);
 		
 		String train_100_100 = dataPath + "train-100-100.csv";
 		String trainR_100_100 = dataPath + "trainR-100-100.csv";
@@ -209,6 +267,10 @@ public class BayesianLinearRegression {
 		double[][] train_100_100_with_labels = BayesianLinearRegression.combineDataWithLabels(train_100_100_phi, train_100_100_t);
 		double[][] test_100_100_phi = BayesianLinearRegression.readData(test_100_100);
 		double[] test_100_100_t = BayesianLinearRegression.readLabels(testR_100_100);
+		double train_100_100_lambda = BayesianLinearRegression.implementTenFoldCross(train_100_100_with_labels);
+		double[] train_100_100_w = BayesianLinearRegression.calculateW(train_100_100_lambda, train_100_100_phi, train_100_100_t);
+		double test_100_100_mse = BayesianLinearRegression.mse(test_100_100_phi, train_100_100_w, test_100_100_t);
+		System.out.println("lambda: " + train_100_100_lambda + " test-100-100 mse: " + test_100_100_mse);
 		
 		String train_50_1000_100 = dataPath + "train-(50)1000-100.csv";
 		String train_100_1000_100 = dataPath + "train-(100)1000-100.csv";
@@ -234,6 +296,26 @@ public class BayesianLinearRegression {
 		double[][] test_1000_100_phi = BayesianLinearRegression.readData(test_1000_100);
 		double[] test_1000_100_t = BayesianLinearRegression.readLabels(testR_1000_100);
 		
+		double train_50_1000_100_lambda = BayesianLinearRegression.implementTenFoldCross(train_50_1000_100_with_labels);
+		double[] train_50_1000_100_w = BayesianLinearRegression.calculateW(train_50_1000_100_lambda, train_50_1000_100_phi, train_50_1000_100_t);
+		double test_50_1000_100_mse = BayesianLinearRegression.mse(test_1000_100_phi, train_50_1000_100_w, test_1000_100_t);
+		System.out.println("lambda: " + train_50_1000_100_lambda + " test-50-1000-100 mse: " + test_50_1000_100_mse);
+		
+		double train_100_1000_100_lambda = BayesianLinearRegression.implementTenFoldCross(train_100_1000_100_with_labels);
+		double[] train_100_1000_100_w = BayesianLinearRegression.calculateW(train_100_1000_100_lambda, train_100_1000_100_phi, train_100_1000_100_t);
+		double test_100_1000_100_mse = BayesianLinearRegression.mse(test_1000_100_phi, train_100_1000_100_w, test_1000_100_t);
+		System.out.println("lambda: " + train_100_1000_100_lambda + " test-100-1000-100 mse: " + test_100_1000_100_mse);
+		
+		double train_150_1000_100_lambda = BayesianLinearRegression.implementTenFoldCross(train_150_1000_100_with_labels);
+		double[] train_150_1000_100_w = BayesianLinearRegression.calculateW(train_150_1000_100_lambda, train_150_1000_100_phi, train_150_1000_100_t);
+		double test_150_1000_100_mse = BayesianLinearRegression.mse(test_1000_100_phi, train_150_1000_100_w, test_1000_100_t);
+		System.out.println("lambda: " + train_150_1000_100_lambda + " test-150-1000-100 mse: " + test_150_1000_100_mse);
+		
+		double train_1000_100_lambda = BayesianLinearRegression.implementTenFoldCross(train_1000_100_with_labels);
+		double[] train_1000_100_w = BayesianLinearRegression.calculateW(train_1000_100_lambda, train_1000_100_phi, train_1000_100_t);
+		double test_1000_100_mse = BayesianLinearRegression.mse(test_1000_100_phi, train_1000_100_w, test_1000_100_t);
+		System.out.println("lambda: " + train_1000_100_lambda + " test-1000-100 mse: " + test_1000_100_mse);
+		
 		String train_crime = dataPath + "train-crime.csv";
 		String trainR_crime = dataPath + "trainR-crime.csv";
 		String test_crime = dataPath + "test-crime.csv";
@@ -245,6 +327,12 @@ public class BayesianLinearRegression {
 		double[][] test_crime_phi = BayesianLinearRegression.readData(test_crime);
 		double[] test_crime_t = BayesianLinearRegression.readLabels(testR_crime);
 		
+		double train_crime_lambda = BayesianLinearRegression.implementTenFoldCross(train_crime_with_labels);
+		double[] train_crime_w = BayesianLinearRegression.calculateW(train_crime_lambda, train_crime_phi, train_crime_t);
+		double test_crime_mse = BayesianLinearRegression.mse(test_crime_phi, train_crime_w, test_crime_t);
+		System.out.println("lambda: " + train_crime_lambda + " test-crime mse: " + test_crime_mse);
+		
+		
 		String train_wine = dataPath + "train-wine.csv";
 		String trainR_wine = dataPath + "trainR-wine.csv";
 		String test_wine = dataPath + "test-wine.csv";
@@ -255,23 +343,26 @@ public class BayesianLinearRegression {
 		
 		double[][] test_wine_phi = BayesianLinearRegression.readData(test_wine);
 		double[] test_wine_t = BayesianLinearRegression.readLabels(testR_wine);
-		
+		double train_wine_lambda = BayesianLinearRegression.implementTenFoldCross(train_wine_with_labels);
+		double[] train_wine_w = BayesianLinearRegression.calculateW(train_wine_lambda, train_wine_phi, train_wine_t);
+		double test_wine_mse = BayesianLinearRegression.mse(test_wine_phi, train_wine_w, test_wine_t);
+		System.out.println("lambda: " + train_wine_lambda + " test-wine mse: " + test_wine_mse);
 	}
 	
 	public static void main(String[] args) throws Exception{
 		// TODO Auto-generated method stub
-		double[][] array = {{-1.,1.,0},{-4.,3.,0.},{1.,0.,2.}, {3, 4, 5}}; 
-		Matrix a = new Matrix(array); 
-		double[][] b = a.inverse().getArray();
-		String dataPath = "data/"; // data path
-		String trainingData = dataPath + "train-100-10.csv";
-		String trainingLabels = dataPath + "trainR-100-10.csv";
-		double[][] phi = BayesianLinearRegression.readData(trainingData);
-		double[] t = BayesianLinearRegression.readLabels(trainingLabels);
-		//Collections.shuffle(Arrays.asList(phi));
-		double[][] data_with_labels = BayesianLinearRegression.combineDataWithLabels(phi, t);
-		BayesianLinearRegression.implementTenFoldCross(data_with_labels);
-//		
+//		double[][] array = {{-1.,1.,0},{-4.,3.,0.},{1.,0.,2.}, {3, 4, 5}}; 
+//		Matrix a = new Matrix(array); 
+//		double[][] b = a.inverse().getArray();
+//		String dataPath = "data/"; // data path
+//		String trainingData = dataPath + "train-100-10.csv";
+//		String trainingLabels = dataPath + "trainR-100-10.csv";
+//		double[][] phi = BayesianLinearRegression.readData(trainingData);
+//		double[] t = BayesianLinearRegression.readLabels(trainingLabels);
+//		//Collections.shuffle(Arrays.asList(phi));
+//		double[][] data_with_labels = BayesianLinearRegression.combineDataWithLabels(phi, t);
+//		BayesianLinearRegression.implementTenFoldCross(data_with_labels);
+////		
 //		for (int i = 0; i < phi.length; i++) {
 //			double[] data_label = new double [5];
 //			for (int j = 0; j < phi[i].length; j++) {
@@ -296,6 +387,7 @@ public class BayesianLinearRegression {
 		//Task1.task1();
 		
 		//Task2.task2();
+		BayesianLinearRegression.task3();
 	}
 
 }
