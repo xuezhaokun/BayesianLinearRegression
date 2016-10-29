@@ -106,6 +106,7 @@ public class Task3 {
 		
 		double[][] test_wine_phi = BayesianLinearRegression.readData(test_wine);
 		double[] test_wine_t = BayesianLinearRegression.readLabels(testR_wine);
+		
 		double train_wine_lambda = BayesianLinearRegression.implementTenFoldCross(train_wine_with_labels);
 		double[] train_wine_w = BayesianLinearRegression.calculateW(train_wine_lambda, train_wine_phi, train_wine_t);
 		double test_wine_mse = BayesianLinearRegression.mse(test_wine_phi, train_wine_w, test_wine_t);

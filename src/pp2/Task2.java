@@ -24,7 +24,7 @@ public class Task2 {
 		
 		double[][] data_with_labels = BayesianLinearRegression.combineDataWithLabels(train_1000_100_phi, train_1000_100_t);
 		
-		double[] lambdas = new double[] {0, 90, 150};
+		double[] lambdas = new double[] {0, 27, 150};
 		for (double lambda : lambdas) {
 			for (int n = 10; n < 810; n = n + 10) {
 				double mse = 0;
