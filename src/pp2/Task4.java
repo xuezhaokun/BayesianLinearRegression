@@ -1,11 +1,5 @@
 package pp2;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.io.*;
-import java.util.List;
-import Jama.Matrix;
 
 public class Task4 {
 	public static void task4 () throws IOException {

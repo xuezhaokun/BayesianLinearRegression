@@ -19,8 +19,7 @@ public class Task1 {
 		double[] test_100_10_t = BayesianLinearRegression.readLabels(testR_100_10);
 		double[] mse_train_100_10 = new double[151];
 		double[] mse_test_100_10 = new double[151];
-		PrintWriter writer_mse_train_100_10 = new PrintWriter("results/mse_train_100_10", "UTF-8");
-		PrintWriter writer_mse_test_100_10 = new PrintWriter("results/mse_test_100_10", "UTF-8");
+		PrintWriter writer_mse_100_10 = new PrintWriter("results/mse_100_10", "UTF-8");
 
 		
 		String train_100_100 = dataPath + "train-100-100.csv";
@@ -33,8 +32,7 @@ public class Task1 {
 		double[] test_100_100_t = BayesianLinearRegression.readLabels(testR_100_100);
 		double[] mse_train_100_100 = new double[151];
 		double[] mse_test_100_100 = new double[151];
-		PrintWriter writer_mse_train_100_100 = new PrintWriter("results/mse_train_100_100", "UTF-8");
-		PrintWriter writer_mse_test_100_100 = new PrintWriter("results/mse_test_100_100", "UTF-8");
+		PrintWriter writer_mse_100_100 = new PrintWriter("results/mse_100_100", "UTF-8");
 		
 		
 		String train_50_1000_100 = dataPath + "train-(50)1000-100.csv";
@@ -60,19 +58,15 @@ public class Task1 {
 		double[] mse_train_100_1000_100 = new double[151];
 		double[] mse_train_150_1000_100 = new double[151];
 		double[] mse_train_1000_100 = new double[151];
-		PrintWriter writer_mse_train_50_1000_100 = new PrintWriter("results/mse_train_50_1000_100 ", "UTF-8");
-		PrintWriter writer_mse_train_100_1000_100  = new PrintWriter("results/mse_train_100_1000_100 ", "UTF-8");
-		PrintWriter writer_mse_train_150_1000_100  = new PrintWriter("results/mse_train_150_1000_100 ", "UTF-8");
-		PrintWriter writer_mse_train_1000_100  = new PrintWriter("results/mse_train_1000_100 ", "UTF-8");
 		
 		double[] mse_test_50_1000_100 = new double[151];
 		double[] mse_test_100_1000_100 = new double[151];
 		double[] mse_test_150_1000_100 = new double[151];
 		double[] mse_test_1000_100 = new double[151];
-		PrintWriter writer_mse_test_50_1000_100 = new PrintWriter("results/mse_test_50_1000_100 ", "UTF-8");
-		PrintWriter writer_mse_test_100_1000_100  = new PrintWriter("results/mse_test_100_1000_100 ", "UTF-8");
-		PrintWriter writer_mse_test_150_1000_100  = new PrintWriter("results/mse_test_150_1000_100 ", "UTF-8");
-		PrintWriter writer_mse_test_1000_100  = new PrintWriter("results/mse_test_1000_100 ", "UTF-8");
+		PrintWriter writer_mse_50_1000_100 = new PrintWriter("results/mse_50_1000_100", "UTF-8");
+		PrintWriter writer_mse_100_1000_100  = new PrintWriter("results/mse_100_1000_100", "UTF-8");
+		PrintWriter writer_mse_150_1000_100  = new PrintWriter("results/mse_150_1000_100", "UTF-8");
+		PrintWriter writer_mse_1000_100  = new PrintWriter("results/mse_1000_100", "UTF-8");
 		
 		String train_crime = dataPath + "train-crime.csv";
 		String trainR_crime = dataPath + "trainR-crime.csv";
@@ -84,8 +78,7 @@ public class Task1 {
 		double[] test_crime_t = BayesianLinearRegression.readLabels(testR_crime);
 		double[] mse_train_crime = new double[151];
 		double[] mse_test_crime = new double[151];
-		PrintWriter writer_mse_train_crime = new PrintWriter("results/mse_train_crime", "UTF-8");
-		PrintWriter writer_mse_test_crime = new PrintWriter("results/mse_test_crime", "UTF-8");
+		PrintWriter writer_mse_crime = new PrintWriter("results/mse_crime", "UTF-8");
 		
 		String train_wine = dataPath + "train-wine.csv";
 		String trainR_wine = dataPath + "trainR-wine.csv";
@@ -97,8 +90,7 @@ public class Task1 {
 		double[] test_wine_t = BayesianLinearRegression.readLabels(testR_wine);
 		double[] mse_train_wine = new double[151];
 		double[] mse_test_wine = new double[151];
-		PrintWriter writer_mse_train_wine = new PrintWriter("results/mse_train_wine", "UTF-8");
-		PrintWriter writer_mse_test_wine = new PrintWriter("results/mse_test_wine", "UTF-8");
+		PrintWriter writer_mse_wine = new PrintWriter("results/mse_wine", "UTF-8");
 		
 		for (double lambda = 0; lambda < 151; lambda++) {
 			int index = (int) lambda;
@@ -113,58 +105,43 @@ public class Task1 {
 			
 			mse_train_100_10[index] = BayesianLinearRegression.mse(train_100_10_phi, w_100_10, train_100_10_t);
 	        mse_test_100_10[index] = BayesianLinearRegression.mse(test_100_10_phi, w_100_10, test_100_10_t);
-	        writer_mse_train_100_10.println(index + " " + mse_train_100_10[index]);
-	        writer_mse_test_100_10.println(index + " " + mse_test_100_10[index]);
+	        writer_mse_100_10.println(index + " " + mse_train_100_10[index] + " " + mse_test_100_10[index] + " 3.78");
 	        
 			mse_train_100_100[index] = BayesianLinearRegression.mse(train_100_100_phi, w_100_100, train_100_100_t);
 	        mse_test_100_100[index] = BayesianLinearRegression.mse(test_100_100_phi, w_100_100, test_100_100_t);
-	        writer_mse_train_100_100.println(index + " " + mse_train_100_100[index]);
-	        writer_mse_test_100_100.println(index + " " + mse_test_100_100[index]);
+	        writer_mse_100_100.println(index + " " + mse_train_100_100[index] + " " + mse_test_100_100[index] + " 3.78");
 	        
 			mse_train_50_1000_100[index] = BayesianLinearRegression.mse(train_50_1000_100_phi, w_50_1000_100, train_50_1000_100_t);
 			mse_train_100_1000_100[index] = BayesianLinearRegression.mse(train_100_1000_100_phi, w_100_1000_100, train_100_1000_100_t);
 			mse_train_150_1000_100[index] = BayesianLinearRegression.mse(train_150_1000_100_phi, w_150_1000_100, train_150_1000_100_t);
 			mse_train_1000_100[index] = BayesianLinearRegression.mse(train_1000_100_phi, w_1000_100, train_1000_100_t);
-			writer_mse_train_50_1000_100.println(index + " " + mse_train_50_1000_100[index]);
-			writer_mse_train_100_1000_100.println(index + " " + mse_train_100_1000_100[index]);
-			writer_mse_train_150_1000_100.println(index + " " + mse_train_150_1000_100[index]);
-	        writer_mse_train_1000_100.println(index + " " + mse_train_1000_100[index]);
+
 			
 			mse_test_50_1000_100[index] = BayesianLinearRegression.mse(test_1000_100_phi, w_50_1000_100, test_1000_100_t);
 			mse_test_100_1000_100[index] = BayesianLinearRegression.mse(test_1000_100_phi, w_100_1000_100, test_1000_100_t);
 			mse_test_150_1000_100[index] = BayesianLinearRegression.mse(test_1000_100_phi, w_150_1000_100, test_1000_100_t);
 			mse_test_1000_100[index] = BayesianLinearRegression.mse(test_1000_100_phi, w_1000_100, test_1000_100_t);
-			writer_mse_test_50_1000_100.println(index + " " + mse_test_50_1000_100[index]);
-			writer_mse_test_100_1000_100.println(index + " " + mse_test_100_1000_100[index]);
-			writer_mse_test_150_1000_100.println(index + " " + mse_test_150_1000_100[index]);
-	        writer_mse_test_1000_100.println(index + " " + mse_test_1000_100[index]);
+			writer_mse_50_1000_100.println(index + " " + mse_train_50_1000_100[index] + " " + mse_test_50_1000_100[index] + " 4.015");
+			writer_mse_100_1000_100.println(index + " " + mse_train_100_1000_100[index] + " " + mse_test_100_1000_100[index] + " 4.015");
+			writer_mse_150_1000_100.println(index + " " + mse_train_150_1000_100[index] + " " + mse_test_150_1000_100[index] + " 4.015");
+	        writer_mse_1000_100.println(index + " " + mse_train_1000_100[index] + " " + mse_test_1000_100[index] + " 4.015");
 	        
 			mse_train_crime[index] = BayesianLinearRegression.mse(train_crime_phi, w_crime, train_crime_t);
 	        mse_test_crime[index] = BayesianLinearRegression.mse(test_crime_phi, w_crime, test_crime_t);
-	        writer_mse_train_crime.println(index + " " + mse_train_crime[index]);
-	        writer_mse_test_crime.println(index + " " + mse_test_crime[index]);
+	        writer_mse_crime.println(index + " " + mse_train_crime[index]+  " " + mse_test_crime[index]);
 	        
 			mse_train_wine[index] = BayesianLinearRegression.mse(train_wine_phi, w_wine, train_wine_t);
 	        mse_test_wine[index] = BayesianLinearRegression.mse(test_wine_phi, w_wine, test_wine_t);
-	        writer_mse_train_wine.println(index + " " + mse_train_wine[index]);
-	        writer_mse_test_wine.println(index + " " + mse_test_wine[index]);
+	        writer_mse_wine.println(index + " " + mse_train_wine[index] + " " + mse_test_wine[index]);
 		}
-		writer_mse_train_100_10.close();
-		writer_mse_test_100_10.close();
-		writer_mse_train_100_100.close();
-		writer_mse_test_100_100.close();
-		writer_mse_train_50_1000_100.close();
-		writer_mse_train_100_1000_100.close();
-		writer_mse_train_150_1000_100.close();
-		writer_mse_train_1000_100.close();
-		writer_mse_test_50_1000_100.close();
-		writer_mse_test_100_1000_100.close();
-		writer_mse_test_150_1000_100.close();
-		writer_mse_test_1000_100.close();
-		writer_mse_train_crime.close();
-		writer_mse_test_crime.close();
-		writer_mse_train_wine.close();
-		writer_mse_test_wine.close();
+		writer_mse_100_10.close();
+		writer_mse_100_100.close();
+		writer_mse_50_1000_100.close();
+		writer_mse_100_1000_100.close();
+		writer_mse_150_1000_100.close();
+		writer_mse_1000_100.close();
+		writer_mse_crime.close();
+		writer_mse_wine.close();
 		
 		double[] optimal_test_100_10 = BayesianLinearRegression.findMinMse(mse_test_100_10);
 		System.out.println("test-100-10 lambda: " + optimal_test_100_10[0] + " mse: " + optimal_test_100_10[1]);

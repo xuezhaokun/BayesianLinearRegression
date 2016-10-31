@@ -2,7 +2,6 @@ package pp2;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.io.*;
 import java.util.List;
@@ -122,14 +121,8 @@ public class BayesianLinearRegression {
 	
 	public static double implementTenFoldCross(double[][] data_with_labels) {
 		double[] lambdas_mse = new double[151];
-		int data_size = data_with_labels.length;
-//		int fold_size = data_size/10;
-//		int dimension = data_with_labels[0].length;
 		HashMap<Integer, double[][]> folds = BayesianLinearRegression.splitFolds(data_with_labels);
-		//System.out.println(folds.toString());
 		for (double lambda = 0; lambda < 151; lambda++) {
-//			double[][] train_data_with_labels = new double[data_size-fold_size][dimension];
-//			double[][] test_data_with_labels = new double[fold_size][dimension];
 			double current_mse = 0;
 			for (int k = 0; k < 10; k++){
 				double[][] test_fold_with_labels = folds.get(k);
@@ -145,20 +138,7 @@ public class BayesianLinearRegression {
 			double avg_mse = current_mse/(double)10;
 			lambdas_mse[(int)lambda] = avg_mse;
 		}
-
-		//Arrays.sort(lambdas_mse);
-//	    double minValue = lambdas_mse[0];
-//	    double chosenLambda = 0;
-//	    for (int i = 1; i < lambdas_mse.length; i++) {
-//	        //System.out.println(i + " " + lambdas_mse[i]);
-//	    		if (lambdas_mse[i] < minValue) {
-//	            minValue = lambdas_mse[i];
-//	            chosenLambda = (double)i;
-//	        }
-//	    }
 	    double[] minMse = findMinMse(lambdas_mse);
-//	    System.out.println("~~~~~~~~~~~~~~~~~");
-//	    System.out.println(chosenLambda);
 		return minMse[0];
 	}
 	
@@ -183,7 +163,6 @@ public class BayesianLinearRegression {
 	}
 	
 	public static double[][] generateTrainingFolds(HashMap<Integer, double[][]> folds, int k) {
-		int dimension = folds.get(0)[0].length;
 		List<double[]> train_data = new ArrayList<double[]>();
 		for (int i = 0; i < 10; i++) {
 			if (i != k) {
@@ -192,10 +171,6 @@ public class BayesianLinearRegression {
 			}
 		}
 		double[][] train_folds = train_data.toArray(new double[][]{});
-//		double[][] train_folds = new double[train_data.size()][dimension];
-//		for (int j = 0; j < train_data.size(); j++) {
-//			train_folds[j] = train_data.get(j);
-//		}
 		return train_folds;
 	}
 	
@@ -271,7 +246,6 @@ public class BayesianLinearRegression {
 	    double minValue = lambdas_mse[0];
 	    double chosenLambda = 0;
 	    for (int i = 1; i < lambdas_mse.length; i++) {
-	        //System.out.println(i + " " + lambdas_mse[i]);
 	    		if (lambdas_mse[i] < minValue) {
 	            minValue = lambdas_mse[i];
 	            chosenLambda = (double)i;
@@ -304,53 +278,10 @@ public class BayesianLinearRegression {
 	}
 	
 	public static void main(String[] args) throws Exception{
-		// TODO Auto-generated method stub
-//		double[][] array = {{-1.,1.,0},{-4.,3.,0.},{1.,0.,2.}, {3, 4, 5}}; 
-//		Matrix a = new Matrix(array); 
-//		double[][] b = a.inverse().getArray();
-//		String dataPath = "data/"; // data path
-//		String trainingData = dataPath + "train-100-10.csv";
-//		String trainingLabels = dataPath + "trainR-100-10.csv";
-//		double[][] phi = BayesianLinearRegression.readData(trainingData);
-//		double[] t = BayesianLinearRegression.readLabels(trainingLabels);
-//		
-//		String testData = dataPath + "test-100-10.csv";
-//		String testLabels = dataPath + "testR-100-10.csv";
-//		double[][] test_phi = BayesianLinearRegression.readData(testData);
-//		double[] test_t = BayesianLinearRegression.readLabels(testLabels);
-//		
-//		//Collections.shuffle(Arrays.asList(phi));
-//		double[][] data_with_labels = BayesianLinearRegression.combineDataWithLabels(phi, t);
-//		double[] mn = BayesianLinearRegression.calculateMn(phi, t);
-		
-//		BayesianLinearRegression.implementTenFoldCross(data_with_labels);
-////		
-//		for (int i = 0; i < phi.length; i++) {
-//			double[] data_label = new double [5];
-//			for (int j = 0; j < phi[i].length; j++) {
-//				data_label[j] = phi[i][j];
-//			}
-//			data_label[4] = t[i];
-//			data_with_labels[i] = data_label;
-//		}
-		
-//		double[] t = BayesianLinearRegression.readLabels(trainingLabels);
-//		double[] w = BayesianLinearRegression.calculateW(0, phi, t);
-//		double mse = BayesianLinearRegression.mse(test_phi, mn, test_t);
-		
-		//BayesianLinearRegression.task1();
-		
-		// now loop through the rows of valsTransposed to print
-//		for(int i = 0; i < w.length; i++) {       
-//			System.out.println( " " + w[i]);
-//		}
-//		printMatrix(new Matrix(data_with_labels));
-//		System.out.println(mse);
-		//Task1.task1();
-		
+		Task1.task1();
 		Task2.task2();
-		//Task3.task3();
-		//Task4.task4();
+		Task3.task3();
+		Task4.task4();
 	}
 
 }
