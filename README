@@ -1,0 +1,24 @@
+** It takes about 3 - 5 minutes to finish running the whole project **
+
+1. extra the .zip file 
+	unzip pp2.zip
+
+2. cd to the project directory
+	cd BayesianLinearRegressoin/
+
+3. run the .jar file
+	java -jar pp2.jar
+
+If you need to look at the code, just cd to the code directory 
+	cd src/pp2
+
+If you need to check the raw data I got from the project, just cd to the results directory
+	cd results
+
+In the results directory, it contains the raw data for task 1 and task 2.
+Results for task 1 are stored as mse_"test dataset"
+	The first column is lambda
+	The second column is mse for training set
+	The third column is mse for test set
+	The fourth column is the true mse
+Results for taks 2 are stored as learning_curve_"lambda value"_1000_100
