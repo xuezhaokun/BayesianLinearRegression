@@ -1,6 +1,11 @@
 package pp2;
 import java.io.*;
 
+/**
+ * The class to implement taks4
+ * @author zhaokunxue
+ *
+ */
 public class Task4 {
 	public static void task4 () throws IOException {
 		System.out.println("-------------- Task 4 -------------");

@@ -5,6 +5,11 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Collections;
 
+/**
+ * The class to implement taks2
+ * @author zhaokunxue
+ *
+ */
 public class Task2 {
 	public static void task2() throws IOException{
 		System.out.println("-------------- Task 2 -------------");

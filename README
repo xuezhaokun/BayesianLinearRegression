@@ -1,6 +1,6 @@
 ** It takes about 3 - 5 minutes to finish running the whole project **
 
-1. extra the .zip file 
+1. extract the .zip file 
 	unzip pp2.zip
 
 2. cd to the project directory
@@ -21,4 +21,6 @@ Results for task 1 are stored as mse_"test dataset"
 	The second column is mse for training set
 	The third column is mse for test set
 	The fourth column is the true mse
-Results for taks 2 are stored as learning_curve_"lambda value"_1000_100
+Results for task 2 are stored as learning_curve_"lambda value"_1000_100
+
+optimal results for task 1, task 3 and 4 would be printed in console.

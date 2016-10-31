@@ -3,6 +3,11 @@ package pp2;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+/**
+ * The class to implement taks1
+ * @author zhaokunxue
+ *
+ */
 public class Task1 {
 	
 	public static void task1 () throws IOException {

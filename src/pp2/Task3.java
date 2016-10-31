@@ -2,6 +2,11 @@ package pp2;
 
 import java.io.IOException;
 
+/**
+ * The class to implement taks3
+ * @author zhaokunxue
+ *
+ */
 public class Task3 {
 	public static void task3 () throws IOException {
 		System.out.println("-------------- Task 3 -------------");
